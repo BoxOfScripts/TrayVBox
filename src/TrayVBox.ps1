@@ -50,7 +50,7 @@ if (-not $created) {
 # ---------- Helpers ----------
 function Get-AppIcon {
   $vbExe="C:\Program Files\Oracle\VirtualBox\VirtualBox.exe"
-  if (Test-Path $vbExe){ try { return [System.Drawing.Icon]::ExtractAssociatedIcon($vbExe) } catch {} }
+  if (Test-Path $vbExe){ try { return [System.Drawing.Icon]::ExtractAssociatedIcon($vbExe) } catch {Log-Debug ("ERROR: " + $_.Exception.Message)} }
   return [System.Drawing.SystemIcons]::Application
 }
 function New-DotImage([System.Drawing.Color]$c,[int]$s=12){
@@ -146,13 +146,13 @@ function New-ActionItem([string]$text,[string]$vmName,[string]$action){
     Log-Debug "CLICK action=$a VM=$n text='$($s.Text)'"
     if([string]::IsNullOrEmpty($n)-or [string]::IsNullOrEmpty($a)){ Log-Debug "ERROR: empty Name/Action"; return }
     switch($a){
-      "start" { $args=@('startvm', $n, '--type', 'headless') }
-      "save"  { $args=@('controlvm', $n, 'savestate') }
-      "acpi"  { $args=@('controlvm', $n, 'acpipowerbutton') }
-      "power" { $args=@('controlvm', $n, 'poweroff') }
+      "start" { $vbArgs=@('startvm', $n, '--type', 'headless') }
+      "save"  { $vbArgs=@('controlvm', $n, 'savestate') }
+      "acpi"  { $vbArgs=@('controlvm', $n, 'acpipowerbutton') }
+      "power" { $vbArgs=@('controlvm', $n, 'poweroff') }
       default { Log-Debug "ERROR: unknown action '$a'"; return }
     }
-    $res = Run-VBox $args
+    $res = Run-VBox $vbArgs
     if ($res.Code -ne 0) {
       [System.Windows.Forms.MessageBox]::Show(
         ("VBoxManage failed (exit {0})`r`n{1}" -f $res.Code, ($res.Output -join "`r`n")),
@@ -252,15 +252,15 @@ function Rebuild-Menu{
   [void]$menu.Items.Add("-")
 
   $refresh=New-Object System.Windows.Forms.ToolStripMenuItem("Refresh")
-  $refresh.Add_Click([System.EventHandler]{param($s,$e) Rebuild-Menu })
+  $refresh.Add_Click([System.EventHandler]{param($_,$_) Rebuild-Menu })
   [void]$menu.Items.Add($refresh)
 
   [void]$menu.Items.Add("-")
   $exit=New-Object System.Windows.Forms.ToolStripMenuItem("Exit")
   $exit.Add_Click([System.EventHandler]{param($s,$e)
-    try { Save-LastRunning } catch {}
+    try { Save-LastRunning } catch {Log-Debug ("ERROR: " + $_.Exception.Message)}
     $notifyIcon.Visible=$false; $timer.Stop()
-    try{$mutex.ReleaseMutex()|Out-Null}catch{}
+    try{$mutex.ReleaseMutex()|Out-Null}catch{Log-Debug ("ERROR: " + $_.Exception.Message)}
     $mutex.Dispose()
     [System.Windows.Forms.Application]::Exit()
   })
