@@ -1,13 +1,13 @@
 @{
   Rules = @{
-    PSAvoidAssignmentToAutomaticVariable = @{ Enable = $true }
-    PSAvoidUsingEmptyCatchBlock          = @{ Enable = $true }
-    PSUseApprovedVerbs                   = @{ Enable = $false }  # we allow Log-Debug/Run-VBox naming
-    PSUseConsistentIndentation           = @{ Enable = $false }
-    PSUseConsistentWhitespace            = @{ Enable = $false }
-    PSReviewUnusedParameter              = @{ Enable = $false }
-    PSAvoidUsingWriteHost                = @{ Enable = $false }
-    PSUseShouldProcessForStateChangingFunctions = @{ Enable = $false }
-    PSUseSingularNouns                   = @{ Enable = $false }
+    PSAvoidAssignmentToAutomaticVariable           = @{ Enable = $true }
+    PSAvoidUsingEmptyCatchBlock                    = @{ Enable = $true }
+    PSReviewUnusedParameter                        = @{ Enable = $false }
+    PSAvoidUsingWriteHost                          = @{ Enable = $false }
+    PSUseApprovedVerbs                             = @{ Enable = $false }
+    PSUseConsistentIndentation                     = @{ Enable = $false }
+    PSUseConsistentWhitespace                      = @{ Enable = $false }
+    PSUseShouldProcessForStateChangingFunctions    = @{ Enable = $false }
+    PSUseSingularNouns                             = @{ Enable = $false }
   }
 }

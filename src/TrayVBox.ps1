@@ -67,10 +67,10 @@ function New-DotImage([System.Drawing.Color]$c,[int]$s=12){
 }
 function Get-StatusText([bool]$r){ if($r){"[On]"}else{"[Off]"} }
 function Log-Debug($m){
-  if(-not $DebugMode){return}
+  if(-not $DebugMode){ return }
   $t=(Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
   $l="[$t] $m"
-  Write-Host $l -ForegroundColor Yellow
+  Write-Information $l
   Add-Content -Path $LogFile -Value $l
 }
 
@@ -252,7 +252,7 @@ function Rebuild-Menu{
   [void]$menu.Items.Add("-")
 
   $refresh=New-Object System.Windows.Forms.ToolStripMenuItem("Refresh")
-  $refresh.Add_Click([System.EventHandler]{param($_,$_) Rebuild-Menu })
+  $refresh.Add_Click([System.EventHandler]{param($sender,$eventArgs) Rebuild-Menu })
   [void]$menu.Items.Add($refresh)
 
   [void]$menu.Items.Add("-")
