@@ -1,0 +1,19 @@
+name: CI
+on:
+  pull_request:
+    paths: [ 'src/**', 'scripts/**', 'tests/**', 'PSScriptAnalyzerSettings.psd1' ]
+jobs:
+  lint-test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install PSScriptAnalyzer & Pester
+        run: |
+          Install-Module PSScriptAnalyzer -Scope CurrentUser -Force
+          Install-Module Pester -Scope CurrentUser -Force
+      - name: Lint
+        run: |
+          Invoke-ScriptAnalyzer -Path src\TrayVBox.ps1 -Settings PSScriptAnalyzerSettings.psd1 -Recurse -Severity Warning
+      - name: Pester tests
+        run: |
+          Invoke-Pester -CI -Output Detailed
