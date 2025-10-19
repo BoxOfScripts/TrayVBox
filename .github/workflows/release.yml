@@ -2,26 +2,32 @@ name: Release
 on:
   push:
     tags: [ 'v*.*.*' ]
+
 jobs:
   build-release:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Read version
         id: ver
         shell: pwsh
         run: |
-          $v = (Import-PowerShellDataFile -Path src\TrayVBox.version.psd1).Version
+          $v = (Import-PowerShellDataFile -Path src/TrayVBox.version.psd1).Version
           "version=$v" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
-      - name: Install PSScriptAnalyzer & Inno Setup
+
+      - name: Install Inno Setup & PSScriptAnalyzer
         shell: pwsh
         run: |
-          winget install --id "InnoSetup.InnoSetup" --accept-package-agreements --accept-source-agreements
-          Install-Module PSScriptAnalyzer -Scope CurrentUser -Force
+          choco install innosetup -y
+          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          Install-Module PSScriptAnalyzer -Scope CurrentUser -Force -AllowClobber
+
       - name: Build
         shell: pwsh
         run: |
           ./scripts/build.ps1 -Release
+
       - name: Upload Release
         uses: softprops/action-gh-release@v2
         with:
