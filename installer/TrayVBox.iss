@@ -37,13 +37,10 @@ UninstallDisplayIcon={app}\trayvbox.ico
 Source: "{#SourceDir}\TrayVBox.ps1";            DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourceDir}\TrayVBox.version.psd1";   DestDir: "{app}"; Flags: ignoreversion
 
-; Install icons if present
-#ifexist "{#SourceDir}\assets\trayvbox.ico"
-Source: "{#SourceDir}\assets\trayvbox.ico";     DestDir: "{app}"; Flags: ignoreversion
-#endif
-#ifexist "{#SourceDir}\assets\trayvbox-setup.ico"
+; REQUIRED: ship the tray icon into {app}
+; (No #ifexist — fail compile if missing so we catch packaging errors)
+Source: "{#SourceDir}\assets\trayvbox.ico";       DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourceDir}\assets\trayvbox-setup.ico"; DestDir: "{app}"; Flags: ignoreversion
-#endif
 
 [Dirs]
 Name: "{commonappdata}\TrayVBox"; Flags: uninsneveruninstall
