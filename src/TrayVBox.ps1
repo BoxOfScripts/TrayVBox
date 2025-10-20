@@ -49,8 +49,15 @@ if (-not $created) {
 
 # ---------- Helpers ----------
 function Get-AppIcon {
-  $vbExe="C:\Program Files\Oracle\VirtualBox\VirtualBox.exe"
-  if (Test-Path $vbExe){ try { return [System.Drawing.Icon]::ExtractAssociatedIcon($vbExe) } catch {Log-Debug ("ERROR: " + $_.Exception.Message)} }
+  $custom = Join-Path $PSScriptRoot 'assets\trayvbox.ico'
+  if (Test-Path $custom) {
+    try { return [System.Drawing.Icon]::new($custom) } catch {}
+  }
+  # fallback to VirtualBox if custom icon missing
+  $vbExe = "C:\Program Files\Oracle\VirtualBox\VirtualBox.exe"
+  if (Test-Path $vbExe) {
+    try { return [System.Drawing.Icon]::ExtractAssociatedIcon($vbExe) } catch {}
+  }
   return [System.Drawing.SystemIcons]::Application
 }
 function New-DotImage([System.Drawing.Color]$c,[int]$s=12){
@@ -145,6 +152,14 @@ function New-ActionItem([string]$text,[string]$vmName,[string]$action){
     $t=$s.Tag; $n=[string]$t["Name"]; $a=[string]$t["Action"]
     Log-Debug "CLICK action=$a VM=$n text='$($s.Text)'"
     if([string]::IsNullOrEmpty($n)-or [string]::IsNullOrEmpty($a)){ Log-Debug "ERROR: empty Name/Action"; return }
+    # --- CLOSE the menu right away so it doesn’t linger ---
+    try {
+        $parent = $s.GetCurrentParent()
+        if ($parent -and $parent -is [System.Windows.Forms.ContextMenuStrip]) {
+        $parent.Close()
+        }
+    } catch { Log-Debug ("Menu close error: " + $_.Exception.Message) }
+
     switch($a){
       "start" { $vbArgs=@('startvm', $n, '--type', 'headless') }
       "save"  { $vbArgs=@('controlvm', $n, 'savestate') }
@@ -170,6 +185,9 @@ $notifyIcon.Icon=Get-AppIcon
 $notifyIcon.Text=$Title
 $notifyIcon.Visible=$true
 $menu=New-Object System.Windows.Forms.ContextMenuStrip
+$menu.AutoClose = $true
+$menu.ShowCheckMargin = $false
+$menu.ShowImageMargin = $true
 $notifyIcon.ContextMenuStrip=$menu
 $ImgRunning=New-DotImage([System.Drawing.Color]::FromArgb(0,168,84))
 $ImgStopped=New-DotImage([System.Drawing.Color]::FromArgb(140,140,140))
@@ -266,13 +284,6 @@ function Rebuild-Menu{
   })
   [void]$menu.Items.Add($exit)
 }
-
-# ---------- Run ----------
-$notifyIcon                  = New-Object System.Windows.Forms.NotifyIcon
-$notifyIcon.Icon             = Get-AppIcon
-$notifyIcon.Text             = $Title
-$notifyIcon.Visible          = $true
-$notifyIcon.ContextMenuStrip = $menu
 
 Rebuild-Menu
 $notifyIcon.Add_MouseClick([System.Windows.Forms.MouseEventHandler]{param($s,$e) if($e.Button -eq [System.Windows.Forms.MouseButtons]::Left){ Rebuild-Menu }})
