@@ -49,11 +49,17 @@ if (-not $created) {
 
 # ---------- Helpers ----------
 function Get-AppIcon {
-  $custom = Join-Path $PSScriptRoot 'assets\trayvbox.ico'
-  if (Test-Path $custom) {
-    try { return [System.Drawing.Icon]::new($custom) } catch {}
+  # 1) installed icon (Program Files\TrayVBox\trayvbox.ico)
+  $installed = Join-Path $PSScriptRoot 'trayvbox.ico'
+  if (Test-Path $installed) {
+    try { return [System.Drawing.Icon]::new($installed) } catch {}
   }
-  # fallback to VirtualBox if custom icon missing
+  # 2) staged asset (dev runs)
+  $asset = Join-Path $PSScriptRoot 'assets\trayvbox.ico'
+  if (Test-Path $asset) {
+    try { return [System.Drawing.Icon]::new($asset) } catch {}
+  }
+  # 3) fallback to VirtualBox icon
   $vbExe = "C:\Program Files\Oracle\VirtualBox\VirtualBox.exe"
   if (Test-Path $vbExe) {
     try { return [System.Drawing.Icon]::ExtractAssociatedIcon($vbExe) } catch {}

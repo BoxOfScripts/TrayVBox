@@ -14,7 +14,12 @@ Remove-Item $out -Recurse -Force -ErrorAction SilentlyContinue
 New-Item $out -ItemType Directory -Force | Out-Null
 Copy-Item "$root\src\TrayVBox.ps1"        "$out\TrayVBox.ps1"
 Copy-Item "$root\src\TrayVBox.version.psd1" "$out\TrayVBox.version.psd1"
-Copy-Item "$root\src\assets\trayvbox.ico" "$out\trayvbox.ico"
+
+# NEW: copy assets (including trayvbox.ico) if present
+if (Test-Path "src\assets") {
+  New-Item -ItemType Directory -Force -Path (Join-Path $out "assets") | Out-Null
+  Copy-Item -Path "src\assets\*" -Destination (Join-Path $out "assets") -Recurse -Force
+}
 
 # 3) Build installer (Inno Setup must be installed on build agent)
 $iss = "$root\installer\TrayVBox.iss"
