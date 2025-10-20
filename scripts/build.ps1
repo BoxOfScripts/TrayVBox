@@ -18,9 +18,11 @@ Copy-Item "$root\src\assets\trayvbox.ico" "$out\trayvbox.ico"
 
 # 3) Build installer (Inno Setup must be installed on build agent)
 $iss = "$root\installer\TrayVBox.iss"
+# scripts/build.ps1  (only the ISCC line changes)
 $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
 if (-not (Test-Path $iscc)) { $iscc = "${env:ProgramFiles}\Inno Setup 6\ISCC.exe" }
-# Feed version and source dir via defines
-& $iscc /DAppVersion=$ver /DSourceDir="$out" "$iss"
+
+# Force output to repo root so the upload step can find it
+& $iscc "/O$root" /DAppVersion=$ver /DSourceDir="$out" "$iss"
 
 Write-Host "Built version $ver to /out and installer /TrayVBox-$ver-Setup.exe"

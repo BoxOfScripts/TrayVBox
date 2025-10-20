@@ -2,7 +2,8 @@ name: Release
 on:
   push:
     tags: [ 'v*.*.*' ]
-
+permissions:
+  contents: write
 jobs:
   build-release:
     runs-on: windows-latest
