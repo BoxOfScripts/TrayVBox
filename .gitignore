@@ -3,3 +3,6 @@ out/
 *.user
 .vscode/
 *.pssproj
+.DS_Store
+*.log
+*.cache
